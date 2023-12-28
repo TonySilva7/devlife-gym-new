@@ -1,0 +1,3 @@
+{
+  "extends": "@devlife-ui/eslint-config/react"
+}

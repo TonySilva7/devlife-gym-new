@@ -1,7 +1,7 @@
-import { Center, Heading } from 'native-base';
+import { Center, Heading } from 'native-base'
 
 type Props = {
-  title: string;
+  title: string
 }
 
 export function ScreenHeader({ title }: Props) {
@@ -11,5 +11,5 @@ export function ScreenHeader({ title }: Props) {
         {title}
       </Heading>
     </Center>
-  );
+  )
 }

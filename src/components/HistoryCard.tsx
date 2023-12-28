@@ -1,10 +1,24 @@
-import { Heading, HStack, Text, VStack } from 'native-base';
+import { Heading, HStack, Text, VStack } from 'native-base'
 
 export function HistoryCard() {
   return (
-    <HStack w="full" px={5} py={4} mb={3} bg="gray.600" rounded="md" alignItems="center" justifyContent="space-between">
+    <HStack
+      w="full"
+      px={5}
+      py={4}
+      mb={3}
+      bg="gray.600"
+      rounded="md"
+      alignItems="center"
+      justifyContent="space-between"
+    >
       <VStack mr={5}>
-        <Heading color="white" fontSize="md" textTransform="capitalize" fontFamily="heading">
+        <Heading
+          color="white"
+          fontSize="md"
+          textTransform="capitalize"
+          fontFamily="heading"
+        >
           Costas
         </Heading>
 
@@ -16,7 +30,6 @@ export function HistoryCard() {
       <Text color="gray.300" fontSize="md">
         08:56
       </Text>
-
     </HStack>
-  );
+  )
 }

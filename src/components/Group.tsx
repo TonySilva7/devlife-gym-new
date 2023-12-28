@@ -1,7 +1,7 @@
-import { Text, Pressable, IPressableProps } from 'native-base';
+import { Text, Pressable, IPressableProps } from 'native-base'
 
 type Props = IPressableProps & {
-  name: string;
+  name: string
   isActive: boolean
 }
 
@@ -19,12 +19,12 @@ export function Group({ name, isActive, ...rest }: Props) {
       isPressed={isActive}
       _pressed={{
         borderColor: 'green.500',
-        borderWidth: 1
+        borderWidth: 1,
       }}
       {...rest}
     >
       <Text
-        color={isActive ? "green.500" : "gray.200"}
+        color={isActive ? 'green.500' : 'gray.200'}
         textTransform="uppercase"
         fontSize="xs"
         fontWeight="bold"
@@ -32,5 +32,5 @@ export function Group({ name, isActive, ...rest }: Props) {
         {name}
       </Text>
     </Pressable>
-  );
+  )
 }
