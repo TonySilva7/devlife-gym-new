@@ -35,5 +35,10 @@
         "./src/routes/*"
       ]
     }
-  }
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "./config/**/*",
+  ]
+
 }

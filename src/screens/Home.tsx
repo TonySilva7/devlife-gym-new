@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { FlatList, Heading, HStack, Text, VStack } from '@gluestack-ui/themed'
 import { useNavigation } from '@react-navigation/native'
-import { FlatList, Heading, HStack, Text, VStack } from 'native-base'
+import { useState } from 'react'
 
+import { ExerciseCard } from '@components/ExerciseCard'
 import { Group } from '@components/Group'
 import { HomeHeader } from '@components/HomeHeader'
-import { ExerciseCard } from '@components/ExerciseCard'
 import { AppNavigatorRoutesProps } from '@routes/app.routes'
 
 export function Home() {
@@ -29,45 +29,44 @@ export function Home() {
 
       <FlatList
         data={groups}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item as string}
         renderItem={({ item }) => (
           <Group
-            name={item}
+            name={item as string}
             isActive={
-              groupSelected.toLocaleUpperCase() === item.toLocaleUpperCase()
+              groupSelected.toLocaleUpperCase() ===
+              (item as string).toLocaleUpperCase()
             }
-            onPress={() => setGroupSelected(item)}
+            onPress={() => setGroupSelected(item as string)}
           />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
-        _contentContainerStyle={{
-          px: 4,
-        }}
-        py={1}
-        my={4}
-        maxH={50}
+        contentContainerStyle={{ paddingHorizontal: 4 }}
+        py="$1"
+        my="$4"
+        maxHeight="$16"
       />
 
       <VStack px={8}>
         <HStack justifyContent="space-between" mb={5}>
-          <Heading color="gray.200" fontSize="md" fontFamily="heading">
+          <Heading color="$gray200" fontSize="$md" fontFamily="$heading">
             Exercícios
           </Heading>
 
-          <Text color="gray.200" fontSize="sm">
+          <Text color="$gray200" fontSize="$sm">
             {exercises.length}
           </Text>
         </HStack>
 
         <FlatList
           data={exercises}
-          keyExtractor={(item) => item}
+          keyExtractor={(item) => item as string}
           renderItem={({ item }) => (
             <ExerciseCard onPress={handleOpenExerciseDetails} />
           )}
           showsVerticalScrollIndicator={false}
-          _contentContainerStyle={{
+          contentContainerStyle={{
             paddingBottom: 20,
           }}
         />

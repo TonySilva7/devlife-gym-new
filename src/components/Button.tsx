@@ -1,6 +1,7 @@
-import { Button as ButtonNativeBase, IButtonProps, Text } from 'native-base'
+import { Button as ButtonNativeBase, Text } from '@gluestack-ui/themed'
+import { ComponentProps } from 'react'
 
-type Props = IButtonProps & {
+type Props = ComponentProps<typeof ButtonNativeBase> & {
   title: string
   variant?: 'solid' | 'outline'
 }
@@ -8,21 +9,21 @@ type Props = IButtonProps & {
 export function Button({ title, variant = 'solid', ...rest }: Props) {
   return (
     <ButtonNativeBase
-      w="full"
-      h={14}
-      bg={variant === 'outline' ? 'transparent' : 'green.700'}
+      w="$full"
+      h="$12"
+      bg={variant === 'outline' ? 'transparent' : '$green700'}
       borderWidth={variant === 'outline' ? 1 : 0}
-      borderColor="green.500"
-      rounded="sm"
-      _pressed={{
-        bg: variant === 'outline' ? 'gray.500' : 'green.500',
+      borderColor="$green500"
+      rounded="$sm"
+      $pressed={{
+        bg: variant === 'outline' ? '$gray500' : '$green500',
       }}
       {...rest}
     >
       <Text
-        color={variant === 'outline' ? 'green.500' : 'white'}
-        fontFamily="heading"
-        fontSize="sm"
+        color={variant === 'outline' ? '$green500' : '$white'}
+        // fontFamily="$heading"
+        fontSize="$sm"
       >
         {title}
       </Text>

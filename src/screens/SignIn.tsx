@@ -1,5 +1,14 @@
 import { useNavigation } from '@react-navigation/native'
-import { VStack, Image, Text, Center, Heading, ScrollView } from 'native-base'
+import {
+  VStack,
+  Image,
+  Text,
+  Center,
+  Heading,
+  ScrollView,
+  MailIcon,
+  LockIcon,
+} from '@gluestack-ui/themed'
 
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 
@@ -20,26 +29,33 @@ export function SignIn() {
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
+      position="relative"
     >
-      <VStack flex={1} px={10} pb={16}>
-        <Image
-          source={BackgroundImg}
-          defaultSource={BackgroundImg}
-          alt="Pessoas treinando"
-          resizeMode="contain"
-          position="absolute"
-        />
-
+      <Image
+        source={BackgroundImg}
+        defaultSource={BackgroundImg}
+        alt="Pessoas treinando"
+        resizeMode="cover"
+        position="absolute"
+        h="$2/3"
+        w="$full"
+      />
+      <VStack flex={1} px={10} py="$16" justifyContent="space-between">
         <Center my={24}>
           <LogoSvg />
 
-          <Text color="gray.100" fontSize="sm">
+          <Text color="$blueGray100" size="sm">
             Treine sua mente e o seu corpo.
           </Text>
         </Center>
 
-        <Center>
-          <Heading color="gray.100" fontSize="xl" mb={6} fontFamily="heading">
+        <Center rowGap="$3" marginTop="$12">
+          <Heading
+            color="$blueGray100"
+            fontSize="$xl"
+            mb={6}
+            fontFamily="$heading"
+          >
             Acesse a conta
           </Heading>
 
@@ -47,14 +63,20 @@ export function SignIn() {
             placeholder="E-mail"
             keyboardType="email-address"
             autoCapitalize="none"
+            Icon={MailIcon}
           />
-          <Input placeholder="Senha" secureTextEntry />
+          <Input Icon={LockIcon} placeholder="Senha" secureTextEntry />
 
           <Button title="Acessar" />
         </Center>
 
         <Center mt={24}>
-          <Text color="gray.100" fontSize="sm" mb={3} fontFamily="body">
+          <Text
+            color="$blueGray100"
+            fontSize="$sm"
+            mb={3}
+            // fontFamily="$body"
+          >
             Ainda não tem acesso?
           </Text>
 

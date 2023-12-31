@@ -1,25 +1,26 @@
 /* eslint-disable camelcase */
 import { StatusBar } from 'react-native'
-import { NativeBaseProvider } from 'native-base'
-import { THEME } from './src/theme'
-import {
-  useFonts,
-  Roboto_400Regular,
-  Roboto_700Bold,
-} from '@expo-google-fonts/roboto'
+import { GluestackUIProvider } from '@gluestack-ui/themed'
+import { useFonts } from 'expo-font'
+import { Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto'
 import { Routes } from '@routes/index'
 import { Loading } from '@components/Loading'
+import React from 'react'
+import { config } from './src/theme'
 
 export default function App() {
-  const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
+  const [fontsLoaded, error] = useFonts({ Roboto_400Regular, Roboto_700Bold })
+
+  if (!fontsLoaded) return null
+
   return (
-    <NativeBaseProvider theme={THEME}>
+    <GluestackUIProvider config={config}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="transparent"
         translucent
       />
-      {fontsLoaded ? <Routes /> : <Loading />}
-    </NativeBaseProvider>
+      {fontsLoaded && !error ? <Routes /> : <Loading />}
+    </GluestackUIProvider>
   )
 }

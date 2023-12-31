@@ -1,5 +1,5 @@
 import { Platform } from 'react-native'
-import { useTheme } from 'native-base'
+import { useToken } from '@gluestack-ui/themed'
 import {
   createBottomTabNavigator,
   BottomTabNavigationProp,
@@ -26,23 +26,24 @@ export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>
 const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>()
 
 export function AppRoutes() {
-  const { sizes, colors } = useTheme()
+  const green500 = useToken('colors', 'green500')
+  const gray600 = useToken('colors', 'gray600')
+  const gray200 = useToken('colors', 'gray200')
+  const size28 = useToken('space', '7')
 
-  const iconSize = sizes[6]
+  const iconSize = size28
 
   return (
     <Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarActiveTintColor: colors.green[500],
-        tabBarInactiveTintColor: colors.gray[200],
+        tabBarActiveTintColor: green500,
+        tabBarInactiveTintColor: gray200,
         tabBarStyle: {
-          backgroundColor: colors.gray[600],
+          backgroundColor: gray600,
           borderTopWidth: 0,
           height: Platform.OS === 'android' ? 'auto' : 96,
-          paddingBottom: sizes[10],
-          paddingTop: sizes[6],
         },
       }}
     >

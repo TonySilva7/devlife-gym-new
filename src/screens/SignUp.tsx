@@ -1,15 +1,25 @@
 /* eslint-disable camelcase */
-import { useNavigation } from '@react-navigation/native'
-import { VStack, Image, Text, Center, Heading, ScrollView } from 'native-base'
-import { useForm, Controller } from 'react-hook-form'
-import * as yup from 'yup'
+import {
+  AddIcon,
+  Center,
+  Heading,
+  Image,
+  LockIcon,
+  MailIcon,
+  ScrollView,
+  Text,
+  VStack,
+} from '@gluestack-ui/themed'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useNavigation } from '@react-navigation/native'
+import { Controller, useForm } from 'react-hook-form'
+import * as yup from 'yup'
 
-import LogoSvg from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
+import LogoSvg from '@assets/logo.svg'
 
-import { Input } from '@components/Input'
 import { Button } from '@components/Button'
+import { Input } from '@components/Input'
 
 type FormDataProps = {
   name: string
@@ -60,25 +70,26 @@ export function SignUp() {
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      <VStack flex={1} px={10} pb={16}>
-        <Image
-          source={BackgroundImg}
-          defaultSource={BackgroundImg}
-          alt="Pessoas treinando"
-          resizeMode="contain"
-          position="absolute"
-        />
-
+      <Image
+        source={BackgroundImg}
+        defaultSource={BackgroundImg}
+        alt="Pessoas treinando"
+        resizeMode="cover"
+        position="absolute"
+        h="$2/3"
+        w="$full"
+      />
+      <VStack flex={1} px={10} py="$16" justifyContent="space-between">
         <Center my={24}>
           <LogoSvg />
 
-          <Text color="gray.100" fontSize="sm">
+          <Text color="$gray100" fontSize="$sm">
             Treine sua mente e o seu corpo.
           </Text>
         </Center>
 
-        <Center>
-          <Heading color="gray.100" fontSize="xl" mb={6} fontFamily="heading">
+        <Center rowGap="$3" marginTop="$12">
+          <Heading color="$gray100" fontSize="$xl" mb={6} fontFamily="$heading">
             Crie sua conta
           </Heading>
 
@@ -91,6 +102,7 @@ export function SignUp() {
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.name?.message}
+                Icon={AddIcon}
               />
             )}
           />
@@ -106,6 +118,7 @@ export function SignUp() {
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.email?.message}
+                Icon={MailIcon}
               />
             )}
           />
@@ -120,6 +133,7 @@ export function SignUp() {
                 onChangeText={onChange}
                 value={value}
                 errorMessage={errors.password?.message}
+                Icon={LockIcon}
               />
             )}
           />
@@ -136,6 +150,7 @@ export function SignUp() {
                 onSubmitEditing={handleSubmit(handleSignUp)}
                 returnKeyType="send"
                 errorMessage={errors.password_confirm?.message}
+                Icon={LockIcon}
               />
             )}
           />

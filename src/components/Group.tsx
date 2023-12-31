@@ -1,6 +1,7 @@
-import { Text, Pressable, IPressableProps } from 'native-base'
+import { Pressable, Text } from '@gluestack-ui/themed'
+import { ComponentProps } from 'react'
 
-type Props = IPressableProps & {
+type Props = ComponentProps<typeof Pressable> & {
   name: string
   isActive: boolean
 }
@@ -8,25 +9,26 @@ type Props = IPressableProps & {
 export function Group({ name, isActive, ...rest }: Props) {
   return (
     <Pressable
-      mr={3}
-      w={24}
-      h={10}
-      bg="gray.600"
-      rounded="md"
+      mr="$3"
+      w="$24"
+      h="$10"
+      bg="$gray600"
+      rounded="$md"
       justifyContent="center"
       alignItems="center"
       overflow="hidden"
-      isPressed={isActive}
-      _pressed={{
-        borderColor: 'green.500',
+      borderColor="$green600"
+      borderWidth={isActive ? 1 : 0}
+      $pressed={{
+        borderColor: '$green500',
         borderWidth: 1,
       }}
       {...rest}
     >
       <Text
-        color={isActive ? 'green.500' : 'gray.200'}
+        color={isActive ? '$green500' : '$gray200'}
         textTransform="uppercase"
-        fontSize="xs"
+        fontSize="$sm"
         fontWeight="bold"
       >
         {name}

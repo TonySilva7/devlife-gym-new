@@ -1,39 +1,67 @@
-import { Input as NativeBaseInput, IInputProps, FormControl } from 'native-base'
+import {
+  AlertCircleIcon,
+  FormControl,
+  FormControlError,
+  FormControlErrorIcon,
+  FormControlErrorText,
+  InputField,
+  InputIcon,
+  InputSlot,
+  Input as NativeBaseInput,
+} from '@gluestack-ui/themed'
+import { ComponentProps } from 'react'
 
-type Props = IInputProps & {
+type Props = ComponentProps<typeof InputField> & {
   errorMessage?: string | null
+  isInvalid?: boolean
+  isDisabled?: boolean
+  Icon?: React.ComponentType
 }
 
-export function Input({ errorMessage = null, isInvalid, ...rest }: Props) {
+export function Input({
+  Icon,
+  errorMessage = null,
+  isInvalid,
+  isDisabled,
+  ...rest
+}: Props) {
   const invalid = !!errorMessage || isInvalid
 
   return (
-    <FormControl isInvalid={invalid} mb={4}>
+    <FormControl isInvalid={invalid}>
       <NativeBaseInput
-        bg="gray.700"
-        h={14}
-        px={4}
-        borderWidth={0}
-        fontSize="md"
-        color="white"
-        fontFamily="body"
-        placeholderTextColor="gray.300"
-        isInvalid={invalid}
-        _invalid={{
+        isInvalid={isInvalid}
+        $focus={{
           borderWidth: 1,
-          borderColor: 'red.500',
+          borderColor: '$green500',
         }}
-        _focus={{
-          bgColor: 'gray.700',
+        $invalid={{
           borderWidth: 1,
-          borderColor: 'green.500',
+          borderColor: '$red500',
         }}
-        {...rest}
-      />
+        w="$full"
+        borderWidth="$0"
+        borderRadius="$md"
+        minHeight="$12"
+        px="$2"
+        isDisabled={isDisabled}
+        bg="$gray600"
+      >
+        {!!Icon && (
+          <InputSlot>
+            <InputIcon color="$gray200" as={Icon} />
+          </InputSlot>
+        )}
 
-      <FormControl.ErrorMessage _text={{ color: 'red.500' }}>
-        {errorMessage}
-      </FormControl.ErrorMessage>
+        <InputField w="$full" h="$full" color="white" {...rest} />
+      </NativeBaseInput>
+
+      <FormControlError>
+        <FormControlErrorIcon as={AlertCircleIcon} />
+        <FormControlErrorText color="$error700">
+          {errorMessage}
+        </FormControlErrorText>
+      </FormControlError>
     </FormControl>
   )
 }
