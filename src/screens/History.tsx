@@ -43,7 +43,7 @@ export function History() {
             {(section as IExercise).title}
           </Heading>
         )}
-        px="$8"
+        px="$4"
         contentContainerStyle={
           exercises.length === 0 && { flex: 1, justifyContent: 'center' }
         }

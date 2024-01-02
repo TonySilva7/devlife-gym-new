@@ -2,13 +2,21 @@
 import {
   AddIcon,
   Center,
+  CheckCircleIcon,
+  HStack,
   Heading,
+  Icon,
   Image,
+  InfoIcon,
   LockIcon,
   MailIcon,
   ScrollView,
   Text,
+  Toast,
+  ToastDescription,
+  ToastTitle,
   VStack,
+  useToast,
 } from '@gluestack-ui/themed'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigation } from '@react-navigation/native'
@@ -20,6 +28,7 @@ import LogoSvg from '@assets/logo.svg'
 
 import { Button } from '@components/Button'
 import { Input } from '@components/Input'
+import { ElementType } from 'react'
 
 type FormDataProps = {
   name: string
@@ -56,13 +65,61 @@ export function SignUp() {
     navigation.goBack()
   }
 
-  function handleSignUp({
-    name,
-    email,
-    password,
-    password_confirm,
-  }: FormDataProps) {
-    console.log({ name, email, password, password_confirm })
+  const toast = useToast()
+
+  async function handleSignUp({ name, email, password }: FormDataProps) {
+    try {
+      console.log('Antes: ', { name, email, password })
+
+      const response = await fetch('http://192.168.0.10:3333/users', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        }),
+      })
+
+      const resData = await response.json()
+      console.log('ResData: ', resData)
+
+      showToast(resData.message, resData.status)
+    } catch (error) {
+      console.log('ERROR: ', error)
+      showToast(JSON.stringify(error), 'error')
+    }
+  }
+
+  const showToast = (message: string, status: 'success' | 'error') => {
+    toast.show({
+      placement: 'top',
+      render: ({ id }) => {
+        const toastId = 'toast-' + id
+        const title = status === 'success' ? 'Sucesso!' : 'Erro!'
+        const ToastIcon: ElementType =
+          status === 'success'
+            ? (CheckCircleIcon as ElementType)
+            : (InfoIcon as ElementType)
+
+        const colorIcon = status === 'success' ? '$green700' : '$red700'
+
+        return (
+          <Toast nativeID={toastId} action={status} variant="solid">
+            <VStack space="xs" w="$full">
+              <HStack alignItems="center" columnGap="$1">
+                <Icon as={ToastIcon} color={colorIcon} />
+                <ToastTitle fontFamily="$heading">{title}</ToastTitle>
+              </HStack>
+              <ToastDescription>{message}</ToastDescription>
+            </VStack>
+          </Toast>
+        )
+      },
+    })
   }
 
   return (

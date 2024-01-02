@@ -33,6 +33,10 @@ const Skeleton = () => {
         }),
       ]),
     ).start()
+
+    return () => {
+      animation.stopAnimation()
+    }
   }, [animation])
 
   return <SkeletonContainer style={{ backgroundColor: colorInterpolation }} />

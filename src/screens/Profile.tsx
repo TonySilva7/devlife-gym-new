@@ -86,7 +86,7 @@ export function Profile() {
       <ScreenHeader title="Perfil" />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
-        <Center mt="$6" px="$10" rowGap="$4">
+        <Center mt="$6" px="$4" rowGap="$4">
           {photoIsLoading ? (
             <Skeleton />
           ) : (
