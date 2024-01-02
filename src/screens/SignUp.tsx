@@ -30,6 +30,8 @@ import { Button } from '@components/Button'
 import { Input } from '@components/Input'
 import { ElementType } from 'react'
 
+import { userService, utilsService } from '@services/api'
+
 type FormDataProps = {
   name: string
   email: string
@@ -69,28 +71,25 @@ export function SignUp() {
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
     try {
-      console.log('Antes: ', { name, email, password })
-
-      const response = await fetch('http://192.168.0.10:3333/users', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          password: password.trim(),
-        }),
+      const response = await userService.createUser({
+        name: name.trim(),
+        email: email.trim(),
+        password: password.trim(),
       })
 
-      const resData = await response.json()
-      console.log('ResData: ', resData)
+      const data = response.data
 
-      showToast(resData.message, resData.status)
+      if (data.status === 'error') {
+        showToast(data.message, data.status)
+      }
+
+      showToast('Usuário criado com sucesso', 'success')
     } catch (error) {
-      console.log('ERROR: ', error)
-      showToast(JSON.stringify(error), 'error')
+      if (utilsService.isAxiosError(error)) {
+        showToast(error.response?.data.message, 'error')
+      } else {
+        showToast('Erro desconhecido!', 'error')
+      }
     }
   }
 
