@@ -31,6 +31,7 @@ import { Input } from '@components/Input'
 import { ElementType } from 'react'
 
 import { userService, utilsService } from '@services/api'
+import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
   name: string
@@ -85,8 +86,9 @@ export function SignUp() {
 
       showToast('Usuário criado com sucesso', 'success')
     } catch (error) {
-      if (utilsService.isAxiosError(error)) {
-        showToast(error.response?.data.message, 'error')
+      const isAppError = error instanceof AppError
+      if (isAppError) {
+        showToast(error.message, 'error')
       } else {
         showToast('Erro desconhecido!', 'error')
       }
@@ -98,7 +100,7 @@ export function SignUp() {
       placement: 'top',
       render: ({ id }) => {
         const toastId = 'toast-' + id
-        const title = status === 'success' ? 'Sucesso!' : 'Erro!'
+        const title = status === 'success' ? 'Sucesso!' : 'Oops!'
         const ToastIcon: ElementType =
           status === 'success'
             ? (CheckCircleIcon as ElementType)

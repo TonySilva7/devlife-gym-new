@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AppError from '@utils/AppError'
+import { AppError } from '@utils/AppError'
 import axios, {
   AxiosInstance,
   AxiosResponse,
@@ -24,18 +24,13 @@ api.interceptors.response.use(
     return response
   },
   (error: any) => {
-    if (error.response && error.response.data.message) {
+    if (axios.isAxiosError(error) && error.response?.data.message) {
       return Promise.reject(
         new AppError(error.response.data.message, error.response.status),
       )
     }
 
-    return Promise.reject(
-      new AppError(
-        'Erro no servidor. Tente novamente mais tarde',
-        error.status,
-      ),
-    )
+    return Promise.reject(error)
   },
 )
 
@@ -55,6 +50,13 @@ export const userService = {
     password: string
   }): Promise<AxiosResponse> => {
     const response = await api.post('/users', data)
+    return response
+  },
+  sigIn: async (data: {
+    email: string
+    password: string
+  }): Promise<AxiosResponse> => {
+    const response = await api.post('/sessions', data)
     return response
   },
 }

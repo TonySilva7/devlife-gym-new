@@ -7,6 +7,7 @@ import { Routes } from '@routes/index'
 import { Loading } from '@components/Loading'
 import React from 'react'
 import { config } from './src/theme'
+import { AuthContextProvider } from '@contexts/AuthContext'
 
 export default function App() {
   const [fontsLoaded, error] = useFonts({ Roboto_400Regular, Roboto_700Bold })
@@ -20,7 +21,9 @@ export default function App() {
         backgroundColor="transparent"
         translucent
       />
-      {fontsLoaded && !error ? <Routes /> : <Loading />}
+      <AuthContextProvider>
+        {fontsLoaded && !error ? <Routes /> : <Loading />}
+      </AuthContextProvider>
     </GluestackUIProvider>
   )
 }
