@@ -28,6 +28,7 @@ import LogoSvg from '@assets/logo.svg'
 import { Button } from '@components/Button'
 import { Input } from '@components/Input'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 type FormData = {
@@ -44,8 +45,9 @@ const signInSchema = yup.object({
 })
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
-  const { signIn, user } = useAuth()
+  const { signIn } = useAuth()
   const toast = useToast()
 
   const {
@@ -62,18 +64,21 @@ export function SignIn() {
 
   async function handleSignIn({ email, password }: FormData) {
     try {
+      setIsLoading(true)
       await signIn(email, password)
     } catch (error) {
       const isAppError = error instanceof AppError
 
-      toast.show({
+      const message = isAppError
+        ? error.message
+        : 'Não foi possível entrar. Tente novamente mais tarde.'
+
+      setIsLoading(false)
+
+      await toast.show({
         placement: 'top',
         render: ({ id }) => {
           const toastId = 'toast-' + id
-
-          const title = isAppError
-            ? error.message
-            : 'Não foi possível entrar. Tente novamente mais tarde.'
 
           return (
             <Toast nativeID={toastId} action="error" variant="solid">
@@ -82,7 +87,7 @@ export function SignIn() {
                   <Icon as={InfoIcon} color="$red700" />
                   <ToastTitle fontFamily="$heading">Oops!</ToastTitle>
                 </HStack>
-                <ToastDescription>{title}</ToastDescription>
+                <ToastDescription>{message}</ToastDescription>
               </VStack>
             </Toast>
           )
@@ -90,8 +95,6 @@ export function SignIn() {
       })
     }
   }
-
-  console.log(user)
 
   return (
     <ScrollView
@@ -158,16 +161,15 @@ export function SignIn() {
             )}
           />
 
-          <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
+          <Button
+            title="Acessar"
+            onPress={handleSubmit(handleSignIn)}
+            isLoading={isLoading}
+          />
         </Center>
 
         <Center mt={24}>
-          <Text
-            color="$blueGray100"
-            fontSize="$sm"
-            mb={3}
-            // fontFamily="$body"
-          >
+          <Text color="$blueGray100" fontSize="$sm" mb={3} fontFamily="$body">
             Ainda não tem acesso?
           </Text>
 

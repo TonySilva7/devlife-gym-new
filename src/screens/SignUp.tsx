@@ -28,9 +28,10 @@ import LogoSvg from '@assets/logo.svg'
 
 import { Button } from '@components/Button'
 import { Input } from '@components/Input'
-import { ElementType } from 'react'
+import { ElementType, useState } from 'react'
 
-import { userService, utilsService } from '@services/api'
+import { useAuth } from '@hooks/useAuth'
+import { userService } from '@services/api'
 import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
@@ -54,6 +55,8 @@ const signUpSchema = yup.object({
 })
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
+
   const {
     control,
     handleSubmit,
@@ -69,9 +72,12 @@ export function SignUp() {
   }
 
   const toast = useToast()
+  const { signIn } = useAuth()
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
     try {
+      setIsLoading(true)
+
       const response = await userService.createUser({
         name: name.trim(),
         email: email.trim(),
@@ -82,11 +88,15 @@ export function SignUp() {
 
       if (data.status === 'error') {
         showToast(data.message, data.status)
+        return
       }
 
       showToast('Usuário criado com sucesso', 'success')
+      await signIn(email, password)
     } catch (error) {
       const isAppError = error instanceof AppError
+      setIsLoading(false)
+
       if (isAppError) {
         showToast(error.message, 'error')
       } else {
@@ -96,6 +106,8 @@ export function SignUp() {
   }
 
   const showToast = (message: string, status: 'success' | 'error') => {
+    console.log('Toast', message, status)
+
     toast.show({
       placement: 'top',
       render: ({ id }) => {
@@ -216,6 +228,7 @@ export function SignUp() {
           <Button
             title="Criar e acessar"
             onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
           />
         </Center>
 
