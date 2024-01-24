@@ -35,7 +35,7 @@ api.interceptors.response.use(
 )
 
 // Define your service methods
-export const userService = {
+const userService = {
   getUsers: async (): Promise<AxiosResponse> => {
     const response = await api.get('/users')
     return response
@@ -61,6 +61,22 @@ export const userService = {
   },
 }
 
+const exerciseService = {
+  getExercisesByGroup: async (
+    groupSelected: string,
+  ): Promise<AxiosResponse> => {
+    const response = await api.get(`/exercises/bygroup/${groupSelected}`)
+
+    return response
+  },
+  getGroups: async (): Promise<AxiosResponse> => {
+    const response = await api.get('/groups')
+    return response
+  },
+}
+
 export const utilsService = {
   isAxiosError: axios.isAxiosError,
 }
+
+export { userService, exerciseService }

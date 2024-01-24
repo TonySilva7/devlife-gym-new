@@ -75,7 +75,7 @@ export function SignIn() {
 
       setIsLoading(false)
 
-      await toast.show({
+      toast.show({
         placement: 'top',
         render: ({ id }) => {
           const toastId = 'toast-' + id
