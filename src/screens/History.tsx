@@ -1,28 +1,80 @@
-import { useState } from 'react'
-import { Heading, VStack, SectionList, Text } from '@gluestack-ui/themed'
+import {
+  Center,
+  HStack,
+  Heading,
+  Icon,
+  InfoIcon,
+  SectionList,
+  Text,
+  Toast,
+  ToastDescription,
+  ToastTitle,
+  VStack,
+  useToast,
+} from '@gluestack-ui/themed'
+import { useFocusEffect } from '@react-navigation/native'
+import { useCallback, useEffect, useState } from 'react'
+
+import { exerciseService } from '@services/api'
+import { AppError } from '@utils/AppError'
 
 import { HistoryCard } from '@components/HistoryCard'
 import { ScreenHeader } from '@components/ScreenHeader'
-
-type IExercise = {
-  id: string
-  title: string
-  data: string[]
-}
+import { HistoryByDayDTO } from '@dtos/HistoryByDayDTO'
+import { HistoryDTO } from '@dtos/HistoryDTO'
 
 export function History() {
-  const [exercises, setExercises] = useState<IExercise[]>([
-    {
-      id: '123',
-      title: '26.08.22',
-      data: ['Puxada frontal', 'Remada unilateral'],
-    },
-    {
-      id: '234',
-      title: '27.08.22',
-      data: ['Puxada frontal'],
-    },
-  ])
+  const toast = useToast()
+  const [isLoading, setIsLoading] = useState(true)
+  const [exercises, setExercises] = useState<HistoryByDayDTO[]>([])
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      const response = await exerciseService.getHistory()
+
+      if (response.data.length === 0) return
+
+      setExercises(response.data)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const message = isAppError
+        ? error.message
+        : 'Não foi possível carregar os detalhes do exercício'
+
+      toast.show({
+        placement: 'top',
+        render: ({ id }) => {
+          const toastId = 'toast-' + id
+
+          return (
+            <Toast nativeID={toastId} action="error" variant="solid">
+              <VStack space="xs" w="$full">
+                <HStack alignItems="center" columnGap="$1">
+                  <Icon as={InfoIcon} color="$red700" />
+                  <ToastTitle fontFamily="$heading">Oops!</ToastTitle>
+                </HStack>
+                <ToastDescription>{message}</ToastDescription>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [toast])
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchHistory()
+  //     // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   }, []),
+  // )
+
+  useEffect(() => {
+    fetchHistory()
+  }, [fetchHistory])
 
   return (
     <VStack flex={1}>
@@ -30,8 +82,8 @@ export function History() {
 
       <SectionList
         sections={exercises}
-        keyExtractor={(item, index) => `${(item as IExercise).id}__${index}`}
-        renderItem={({ item }) => <HistoryCard />}
+        keyExtractor={(item, index) => `${(item as HistoryDTO).id}__${index}`}
+        renderItem={({ item }) => <HistoryCard data={item as HistoryDTO} />}
         renderSectionHeader={({ section }) => (
           <Heading
             color="$gray200"
@@ -40,18 +92,20 @@ export function History() {
             mb="$3"
             fontFamily="$heading"
           >
-            {(section as IExercise).title}
+            {(section as HistoryByDayDTO).title}
           </Heading>
         )}
         px="$4"
-        contentContainerStyle={
-          exercises.length === 0 && { flex: 1, justifyContent: 'center' }
-        }
+        // contentContainerStyle={
+        //   exercises.length === 0 && { flex: 1, justifyContent: 'center' }
+        // }
         ListEmptyComponent={() => (
-          <Text color="$gray100" textAlign="center">
-            Não há exercícios registrados ainda. {'\n'}
-            Vamos fazer exercícios hoje?
-          </Text>
+          <Center flex={1} h="$96">
+            <Text color="$gray100" textAlign="center">
+              Não há exercícios registrados ainda. {'\n'}
+              Vamos fazer exercícios hoje?
+            </Text>
+          </Center>
         )}
         showsVerticalScrollIndicator={false}
       />

@@ -12,6 +12,7 @@ import {
   Toast,
   InfoIcon,
   ToastDescription,
+  CheckIcon,
 } from '@gluestack-ui/themed'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { TouchableOpacity } from 'react-native'
@@ -23,9 +24,10 @@ import RepetitionsSvg from '@assets/repetitions.svg'
 import SeriesSvg from '@assets/series.svg'
 import { Button } from '@components/Button'
 import { useEffect, useState } from 'react'
-import { api } from '@services/api'
+import { api, exerciseService } from '@services/api'
 import { AppError } from '@utils/AppError'
 import { ExerciseDTO } from '@dtos/ExerciseDTO'
+import { Loading } from '@components/Loading'
 
 type RouteParamsProps = {
   exerciseId: string
@@ -33,6 +35,8 @@ type RouteParamsProps = {
 
 export function Exercise() {
   const [exercise, setExercise] = useState<ExerciseDTO>({} as ExerciseDTO)
+  const [isLoading, setIsLoading] = useState(true)
+  const [sendingRegister, setSendingRegister] = useState(false)
 
   const navigation = useNavigation<AppNavigatorRoutesProps>()
   const route = useRoute()
@@ -46,7 +50,9 @@ export function Exercise() {
 
   async function fetchExerciseDetails() {
     try {
-      const response = await api.get(`/exercises/${exerciseId}`)
+      setIsLoading(true)
+
+      const response = await exerciseService.getExerciseById(exerciseId)
 
       setExercise(response.data)
     } catch (error) {
@@ -73,11 +79,71 @@ export function Exercise() {
           )
         },
       })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleExerciseHistoryRegister() {
+    try {
+      setSendingRegister(true)
+
+      await exerciseService.saveHistory(exerciseId)
+
+      toast.show({
+        placement: 'top',
+        render: ({ id }) => {
+          const toastId = 'toast-' + id
+
+          return (
+            <Toast nativeID={toastId} action="success" variant="solid">
+              <VStack space="xs" w="$full">
+                <HStack alignItems="center" columnGap="$1">
+                  <Icon as={CheckIcon} color="$green500" />
+                  <ToastTitle fontFamily="$heading">Sucesso!</ToastTitle>
+                </HStack>
+                <ToastDescription>
+                  Parabéns! Exercício registrado no seu histórico.
+                </ToastDescription>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+
+      navigation.navigate('history')
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const message = isAppError
+        ? error.message
+        : 'Não foi possível registrar exercício.'
+
+      toast.show({
+        placement: 'top',
+        render: ({ id }) => {
+          const toastId = 'toast-' + id
+
+          return (
+            <Toast nativeID={toastId} action="error" variant="solid">
+              <VStack space="xs" w="$full">
+                <HStack alignItems="center" columnGap="$1">
+                  <Icon as={InfoIcon} color="$red700" />
+                  <ToastTitle fontFamily="$heading">Oops!</ToastTitle>
+                </HStack>
+                <ToastDescription>{message}</ToastDescription>
+              </VStack>
+            </Toast>
+          )
+        },
+      })
+    } finally {
+      setSendingRegister(false)
     }
   }
 
   useEffect(() => {
     fetchExerciseDetails()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exerciseId])
 
   return (
@@ -112,46 +178,54 @@ export function Exercise() {
         </HStack>
       </VStack>
 
-      <VStack p="$8">
-        <Image
-          w="$full"
-          h="$80"
-          source={{
-            uri: `${api.defaults.baseURL}/exercise/demo/${exercise?.demo}`,
-          }}
-          alt="Nome do exercício"
-          mb="$3"
-          resizeMode="cover"
-          rounded="$lg"
-        />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <VStack p="$8">
+          <Image
+            w="$full"
+            h="$80"
+            source={{
+              uri: `${api.defaults.baseURL}/exercise/demo/${exercise?.demo}`,
+            }}
+            alt="Nome do exercício"
+            mb="$3"
+            resizeMode="cover"
+            rounded="$lg"
+          />
 
-        <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
-          <HStack
-            alignItems="center"
-            justifyContent="space-around"
-            mb="$6"
-            mt="$5"
-          >
-            <HStack>
-              <SeriesSvg />
+          <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
+            <HStack
+              alignItems="center"
+              justifyContent="space-around"
+              mb="$6"
+              mt="$5"
+            >
+              <HStack>
+                <SeriesSvg />
 
-              <Text color="$gray200" ml="$2">
-                {exercise.series} séries
-              </Text>
+                <Text color="$gray200" ml="$2">
+                  {exercise.series} séries
+                </Text>
+              </HStack>
+
+              <HStack>
+                <RepetitionsSvg />
+
+                <Text color="$gray200" ml="$2">
+                  {exercise.repetitions} repetições
+                </Text>
+              </HStack>
             </HStack>
 
-            <HStack>
-              <RepetitionsSvg />
-
-              <Text color="$gray200" ml="$2">
-                {exercise.repetitions} repetições
-              </Text>
-            </HStack>
-          </HStack>
-
-          <Button title="Marcar como realizado" />
-        </Box>
-      </VStack>
+            <Button
+              title="Marcar como realizado"
+              isLoading={sendingRegister}
+              onPress={handleExerciseHistoryRegister}
+            />
+          </Box>
+        </VStack>
+      )}
     </VStack>
   )
 }
