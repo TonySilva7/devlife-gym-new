@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormDataProps } from '@screens/Profile'
 import { AppError } from '@utils/AppError'
@@ -5,37 +6,145 @@ import axios, {
   AxiosInstance,
   AxiosResponse,
   InternalAxiosRequestConfig,
+  AxiosError,
 } from 'axios'
+import {
+  storageAuthTokenGet,
+  storageAuthTokenSave,
+} from '@storage/storageAuthToken'
 
-export const api: AxiosInstance = axios.create({
+type ISignOut = () => void
+type MyCallback = () => void
+
+type PromiseType = {
+  onSuccess: (token: string) => void
+  onFailure: (error: AxiosError) => void
+}
+
+type APIInstanceProps = AxiosInstance & {
+  registerInterceptTokenManager: (signOut: ISignOut) => MyCallback
+}
+
+export const api = axios.create({
   baseURL: 'http://localhost:3333',
   timeout: 5000,
-})
+}) as APIInstanceProps
 
-api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  // config.headers.Authorization = 'Bearer your_token_here'
-  config.headers['Content-Type'] = 'application/json'
-  config.headers.Accept = 'application/json'
-  return config
-})
+let failedQueued: Array<PromiseType> = []
+let isRefreshing = false
 
-// Add response interceptor
-api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response
-  },
-  (error: any) => {
-    if (axios.isAxiosError(error) && error.response?.data.message) {
-      return Promise.reject(
-        new AppError(error.response.data.message, error.response.status),
-      )
-    }
+api.registerInterceptTokenManager = (signOut: ISignOut) => {
+  const interceptResponse = api.interceptors.response.use(
+    // caso de sucesso
+    (response: AxiosResponse) => response,
 
-    return Promise.reject(error)
-  },
-)
+    // caso de erro
+    async (error: any) => {
+      if (error.response?.status === 401) {
+        const isTokenError =
+          error.response.data?.message === 'token.expired' ||
+          error.response.data?.message === 'token.invalid'
 
-// Define your service methods
+        if (isTokenError) {
+          const { refresh_token } = await storageAuthTokenGet()
+
+          if (!refresh_token) {
+            signOut()
+            return Promise.reject(error)
+          }
+
+          const originalRequestConfig = error.config
+
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              failedQueued.push({
+                onSuccess: (token: string) => {
+                  originalRequestConfig.headers = {
+                    Authorization: `Bearer ${token}`,
+                  }
+                  resolve(api(originalRequestConfig))
+                },
+                onFailure: (error: AxiosError) => {
+                  reject(error)
+                },
+              })
+            })
+          }
+
+          isRefreshing = true
+
+          return new Promise((resolve, reject) => {
+            api
+              .post('/sessions/refresh-token', { refresh_token })
+              .then(async ({ data }) => {
+                const { token, refresh_token } = data
+                await storageAuthTokenSave({ token, refresh_token })
+
+                // converte o data de string (row) para objeto
+                if (originalRequestConfig.data) {
+                  originalRequestConfig.data = JSON.parse(
+                    originalRequestConfig.data,
+                  )
+                }
+
+                originalRequestConfig.headers = {
+                  Authorization: `Bearer ${token}`,
+                }
+                api.defaults.headers.common.Authorization = `Bearer ${token}`
+
+                failedQueued.forEach((request) => {
+                  request.onSuccess(token)
+                })
+
+                console.log('TOKEN ATUALIZADO')
+
+                resolve(api(originalRequestConfig))
+              })
+              .catch((error) => {
+                console.log(error)
+
+                failedQueued.forEach((request) => {
+                  request.onFailure(error)
+                })
+
+                signOut()
+                reject(error)
+              })
+              .finally(() => {
+                isRefreshing = false
+                failedQueued = []
+              })
+          })
+        }
+
+        signOut()
+      }
+
+      if (error.response && error.response.data) {
+        return Promise.reject(
+          new AppError(error.response.data.message, error.response.status),
+        )
+      }
+
+      return Promise.reject(error)
+    },
+  )
+
+  const interceptRequest = api.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+      // config.headers.Authorization = 'Bearer your_token_here'
+      config.headers['Content-Type'] = 'application/json'
+      config.headers.Accept = 'application/json'
+      return config
+    },
+  )
+
+  return () => {
+    api.interceptors.response.eject(interceptResponse)
+    api.interceptors.request.eject(interceptRequest)
+  }
+}
+
 const userService = {
   getUsers: async (): Promise<AxiosResponse> => {
     const response = await api.get('/users')

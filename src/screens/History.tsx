@@ -14,6 +14,7 @@ import {
 } from '@gluestack-ui/themed'
 import { useFocusEffect } from '@react-navigation/native'
 import { useCallback, useEffect, useState } from 'react'
+import { Loading } from '@components/Loading'
 
 import { exerciseService } from '@services/api'
 import { AppError } from '@utils/AppError'
@@ -80,35 +81,39 @@ export function History() {
     <VStack flex={1}>
       <ScreenHeader title="Histórico" />
 
-      <SectionList
-        sections={exercises}
-        keyExtractor={(item, index) => `${(item as HistoryDTO).id}__${index}`}
-        renderItem={({ item }) => <HistoryCard data={item as HistoryDTO} />}
-        renderSectionHeader={({ section }) => (
-          <Heading
-            color="$gray200"
-            fontSize="$md"
-            mt="$10"
-            mb="$3"
-            fontFamily="$heading"
-          >
-            {(section as HistoryByDayDTO).title}
-          </Heading>
-        )}
-        px="$4"
-        // contentContainerStyle={
-        //   exercises.length === 0 && { flex: 1, justifyContent: 'center' }
-        // }
-        ListEmptyComponent={() => (
-          <Center flex={1} h="$96">
-            <Text color="$gray100" textAlign="center">
-              Não há exercícios registrados ainda. {'\n'}
-              Vamos fazer exercícios hoje?
-            </Text>
-          </Center>
-        )}
-        showsVerticalScrollIndicator={false}
-      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <SectionList
+          sections={exercises}
+          keyExtractor={(item, index) => `${(item as HistoryDTO).id}__${index}`}
+          renderItem={({ item }) => <HistoryCard data={item as HistoryDTO} />}
+          renderSectionHeader={({ section }) => (
+            <Heading
+              color="$gray200"
+              fontSize="$md"
+              mt="$10"
+              mb="$3"
+              fontFamily="$heading"
+            >
+              {(section as HistoryByDayDTO).title}
+            </Heading>
+          )}
+          px={8}
+          // contentContainerStyle={
+          //   exercises.length === 0 && { flex: 1, justifyContent: 'center' }
+          // }
+          ListEmptyComponent={() => (
+            <Center flex={1} h="$96">
+              <Text color="$gray100" textAlign="center">
+                Não há exercícios registrados ainda. {'\n'}
+                Vamos fazer exercícios hoje?
+              </Text>
+            </Center>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </VStack>
   )
 }

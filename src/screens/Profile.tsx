@@ -22,6 +22,8 @@ import { useAuth } from '@hooks/useAuth'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { api, userService } from '@services/api'
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
+
 import { AppError } from '@utils/AppError'
 
 import { Button } from '@components/Button'
@@ -275,7 +277,11 @@ export function Profile() {
             <Skeleton />
           ) : (
             <UserPhoto
-              source={{ uri: userPhoto }}
+              source={
+                user.avatar
+                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  : defaultUserPhotoImg
+              }
               alt="Foto do usuário"
               size="md"
             />
